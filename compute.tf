@@ -28,10 +28,19 @@ resource "aws_lb_listener" "listener_http" {
 }
 
 # 4. Plantilla de Lanzamiento (La "receta" para fabricar máquinas)
+data "aws_ami" "ubuntu_latest" {
+  most_recent = true
+  owners      = ["099720109477"] # ID de la cuenta oficial de Canonical (Ubuntu)
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+}
 resource "aws_launch_template" "plantilla_backend" {
   name_prefix   = "Plantilla-Backend-"
-  image_id      = "ami-0c55b159cbfafe1f0"
-  instance_type = "t2.micro"
+  image_id      = data.aws_ami.ubuntu_latest.id
+  instance_type = var.tipo_instancia
 
   vpc_security_group_ids = [aws_security_group.sg_privado.id]
 
@@ -55,9 +64,9 @@ resource "aws_autoscaling_group" "asg_portfolio" {
   target_group_arns   = [aws_lb_target_group.tg_portfolio.arn] # Las engancha al ALB
 
   # Tu petición: 4 máquinas en total (Como hay 2 subredes, pondrá 2 en cada una automáticamente)
-  desired_capacity = 4
-  max_size         = 6
-  min_size         = 2
+  desired_capacity = var.capacidad_minima_asg
+  max_size         = var.capacidad_maxima_asg
+  min_size         = var.capacidad_minima_asg
 
   launch_template {
     id      = aws_launch_template.plantilla_backend.id
