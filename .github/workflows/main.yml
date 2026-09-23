@@ -1,0 +1,29 @@
+name: 'Terraform CI - Portfolio'
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  terraform:
+    name: 'Auditoria de Codigo'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 1. Descargar el codigo del repositorio
+      uses: actions/checkout@v4
+
+    - name: 2. Instalar Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: 3. Formatear Codigo
+      run: terraform fmt -check
+      continue-on-error: true
+
+    - name: 4. Inicializar Terraform
+      run: terraform init -backend=false
+
+    - name: 5. Validar Sintaxis
+      run: terraform validate
