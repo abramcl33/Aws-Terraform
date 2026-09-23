@@ -1,0 +1,10 @@
+# Ignorar directorios de plugins de Terraform
+.terraform/
+
+# Ignorar archivos de estado (¡nunca subir a un repo público!)
+*.tfstate
+*.tfstate.backup
+
+# Ignorar variables locales y bloqueos
+*.tfvars
+.terraform.lock.hcl
